@@ -9,8 +9,8 @@
     specific syntax.
 
     By:             @AnotherSubatomo (GitHub)
-    Version:        1.0.0
-    Last Commited:  09/06/2024 - 6:04 PM
+    Version:        1.1.0
+    Last Commited:  09/06/2024 - 7:34 PM
 
     SPDX-License-Identifier: MIT
 ]=]
@@ -154,10 +154,6 @@ return function ( Lexicon )
 			local C = LS.Current
 			if _G.IsAtNewLine(LS) then
 				_G.IncLineCounter(LS)
-			elseif table.find(Lexicon.Strings, C) then
-				_G.ReadString(LS, C, Token)
-				return "<string>"
-				
 			elseif string.find(C, "%p") then
 				for BaseOpr , OprProg in Semantics.OprProgs do
 					if C ~= BaseOpr then continue end
@@ -182,7 +178,10 @@ return function ( Lexicon )
 						return Operator
 					end
 				end
-				
+				if table.find(Lexicon.Strings, C) then
+					_G.ReadString(LS, C, Token)
+					return "<string>"
+				end
 				_G.NextChar(LS)
 				return C  -- single-char tokens (+ - / ...)
 				
@@ -209,18 +208,18 @@ return function ( Lexicon )
 
 	function Lexer:Next()
 		self.LastLine =  self.LineNumber
-		if self.Lookahead.Token ~= "<eos>" then  -- is there a look-ahead token?
+		if self.Ahead.Token ~= "<eos>" then  -- is there a look-ahead token?
 			-- use it's data instead
-			self.Now.SemanticInfo =  self.Lookahead.SemanticInfo
-			self.Now.Token =  self.Lookahead.Token
-			self.Lookahead.Token = "<eos>"  -- and discharge it
+			self.Now.SemanticInfo =  self.Ahead.SemanticInfo
+			self.Now.Token =  self.Ahead.Token
+			self.Ahead.Token = "<eos>"  -- and discharge it
 		else
 			self.Now.Token = Lex(self,  self.Now)  -- read next token
 		end
 	end
 
 	function Lexer:Lookahead()
-		self.Lookahead.Token = Lex(self, self.Lookahead)
+		self.Ahead.Token = Lex(self, self.Ahead)
 	end
 
 	-- // For producing errors
@@ -260,8 +259,8 @@ return function ( Lexicon )
 		self.MAX_SIZET = 4294967293
 
 		-- // State
-		self.Lookahead = {}             -- # next token
-		self.Lookahead.Token = "<eos>"  -- # [default "nothing next" token]
+		self.Ahead = {}             -- # next token
+		self.Ahead.Token = "<eos>"  -- # [default "nothing next" token]
 		self.Now = {}                   -- # current token
 		self.DecPoint = "."             -- # decimal point symbol used
 		self.State = State              -- # general language state
