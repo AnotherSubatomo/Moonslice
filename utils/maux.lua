@@ -5,7 +5,7 @@
     to be required and set as a global.
     
     By:             @AnotherSubatomo (GitHub)
-    Version:        0.1.0
+    Version:        0.1.1
     Last Commited:  09/06/2024 - 6:04 PM
 
     SPDX-License-Identifier: MIT
@@ -99,7 +99,7 @@ function Aux.SaveChar(LS, c)
 	local buff = LS.Buffer
 	-- if you want to use this, please uncomment Lexer.MAX_SIZET further up
 	--if #buff > LS.MAX_SIZET then
-	--  LS:LexError(LS, "lexical element too long")
+	--  LS:LexError("lexical element too long")
 	--end
 	LS.Buffer = buff..c
 end
@@ -182,7 +182,7 @@ function Aux.TryDecimal(LS, Token)
 	if not seminfo then
 		-- format error with correct decimal point: no more options
 		Aux.ReplaceBuffer(LS, LS.DecPoint, ".")  -- undo change (for error message)
-		LS:LexError(LS, "malformed number", "TK_NUMBER")
+		LS:LexError("malformed number", "TK_NUMBER")
 	end
 end
 
@@ -219,7 +219,7 @@ function Aux.ReadLongComment(LS, ending)
 	while true do
 		local c = LS.Current
 		if c == "<eoz>" then
-			LS:LexError(LS, "unfinished long comment", "<eos>")
+			LS:LexError("unfinished long comment", "<eos>")
 		elseif c == endsign then
 			local done = false
 			for n , punct in endrest do
@@ -248,7 +248,7 @@ function Aux.ReadLongString(LS, Token, ending)
 	while true do
 		local c = LS.Current
 		if c == "<eoz>" then
-			LS:LexError(LS, "unfinished long string", "<eos>")
+			LS:LexError("unfinished long string", "<eos>")
 		elseif c == endsign then
 			local done = false
 			for n , punct in endrest do
@@ -263,6 +263,7 @@ function Aux.ReadLongString(LS, Token, ending)
 		end--if c
 	end--while
 	Aux.NextChar(LS)
+	Token.SemanticInfo = LS.Buffer
 end
 
 ------------------------------------------------------------------------
@@ -276,9 +277,9 @@ function Aux.ReadString(LS, del, Token)
 	while LS.Current ~= del do
 		local c = LS.Current
 		if c == "<eoz>" then
-			LS:LexError(LS, "unfinished string", "<eos>")
+			LS:LexError("unfinished string", "<eos>")
 		elseif Aux.IsAtNewLine(LS) then
-			LS:LexError(LS, "unfinished string", "<string>")
+			LS:LexError("unfinished string", "<string>")
 		elseif c == "\\" then
 			c = Aux.NextChar(LS)  -- do not save the '\'
 			if Aux.IsAtNewLine(LS) then  -- go through
@@ -342,7 +343,7 @@ function Aux.ReadString(LS, del, Token)
 						i = i + 1
 					until i >= 3 or not string.find(LS.Current, "%d")
 					if c > 255 then  -- UCHAR_MAX
-						LS:LexError(LS, "escape sequence too large", "<string>")
+						LS:LexError("escape sequence too large", "<string>")
 					end
 					Aux.SaveChar(LS, string.char(c))
 				end
