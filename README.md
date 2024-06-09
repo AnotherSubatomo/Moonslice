@@ -42,10 +42,18 @@ type TokenValue = {
   Token :  string             -- # Very value which gives meaning to the structure
 }
 ```
+---
+### Constraints
+Specific things will always have the same token outputed by lexer design, so please watch out for the following constraints:
+- Anything identified as a string will always have the token `<string>`
+- Anything identified as a number will always have the token `<number>`
+- Anything identified as a identifier/name will always have the token `<name>`
+- Anything identified as a character will always have the token `<char>`
+- Anything identified as a comment will always have the token `<comment>`
+- If the ZIO runs out of things to read, it will output `<eoz>`, meaning **end of ZIO**.
 
 ---
-
 ### Why
 This module was actually a side-product another project of mine, where I attempt to port other languages into the Roblox environment by creating compilers written in Lua _(The LCC Project)_, which all output a standard bytecode _(The LuASM Project)_.
 
-If you have an eye for possible optimizations or improvements, please feel free to contribute as this project is **open-source**. 😊
+If you have an eye for possible optimizations, bug fixes, or improvements, please feel free to contribute as this project is **open-source**. 😊
