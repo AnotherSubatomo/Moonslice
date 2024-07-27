@@ -17,7 +17,7 @@ type Lexicon = {
 		Long : string?       -- # must be formatted as "{START}{END}"
 	} ,
 	Chars : string? ,        -- # if the language has a seperate definition for chars
-	Literals : boolean?
+	Literals : boolean?      -- # if the language supports the use of special characters in strings or not
 }
 ```
 
@@ -42,22 +42,23 @@ _P.S.: These are not **all** of the properties, but the ones you might find of u
 A `Token` is structured like this:
 ```lua
 type Token = {
-  Lexeme : (string | number)? ,         -- # Usually holds the identifier (name)
-  Type :  string             -- # Very value which gives meaning to the structure
+  Lexeme : (string | number)? , -- # The last literal string or number met
+  Type :  string                -- # Token type
 }
 ```
 ---
 ### Constraints
 Specific things will always have the same token outputed by lexer design, so please watch out for the following constraints:
-- Anything identified as a string will always have the token `<string>`
-- Anything identified as a number will always have the token `<number>`
-- Anything identified as a identifier/name will always have the token `<name>`
-- Anything identified as a character will always have the token `<char>`
-- Anything identified as a comment will always have the token `<comment>`
-- If the ZIO runs out of things to read, it will output `<eoz>`, meaning **end of ZIO**.
+- Anything identified as a string will always have the token type `<string>`
+- Anything identified as a number will always have the token type `<number>`
+- Anything identified as a identifier/name will always have the token type `<name>`
+- Anything identified as a character will always have the token type `<char>`
+- Anything identified as a comment will always have the token type `<comment>`
+- If the ZIO runs out of things to read, the token's type constantly be `<eoz>`, meaning **end of ZIO**.
 
 _* Comments are never skipped, as they might be used for features like directives._
-_* Literal numbers are automatically converted into numbers. Octals, hexadecimal and binary are supported._
+
+_* Literal numbers are automatically converted into numbers (Hence why `Token.Lexeme` can be a number). Octals, hexadecimal and binary are supported._
 
 ---
 ### Why
