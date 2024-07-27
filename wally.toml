@@ -1,0 +1,14 @@
+[package]
+name = "anothersubatomo/moonslice"
+version = "0.3.2"
+description = "A lexical analyzer generator in Luau"
+license = "MIT"
+authors = ["AnotherSubatomo"]
+
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+
+exclude = ["**"]
+include = ["src", "src/*", "default.project.json", "wally.lock", "wally.toml"]
+
+[dependencies]
