@@ -31,7 +31,7 @@ export type Z = typeof(ZIO) & {
 }
 
 -- // Makes a buffer reader
-local function MakeReader( source : string? )
+local function MakeReader( source: string? )
 	return function()
 		local data = source
 		source = nil
@@ -40,7 +40,7 @@ local function MakeReader( source : string? )
 end
 
 -- // Fill up input buffer
-local function Fill( Z : Z )
+local function Fill( Z: Z )
 	local buff = Z.reader()
 	Z.data = buff
 	if not buff or buff == "" then return "<eoz>" end
@@ -50,7 +50,7 @@ end
 
 -- // Get next character
 -- * local n, p are used to optimize code generation
-function ZIO.GetChar( self : Z )
+function ZIO.GetChar( self: Z )
 	local n, p = self.n, self.p + 1
 	if n > 0 then
 		self.n, self.p = n - 1, p
@@ -62,9 +62,9 @@ end
 
 -- // Create a ZIO input stream
 function ZIO.new(
-	source : string ,
-	data : string? ,
-	name : string
+	source: string ,
+	data: string? ,
+	name: string
 )
 	assert( type(source) == "string" , Exception[1] )
 	local Z = setmetatable({}, {__index = ZIO})

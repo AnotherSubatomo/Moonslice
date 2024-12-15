@@ -2,7 +2,7 @@
 --[=[
     ============ maux.lua ============
     Auxiliary functions for the lexer.
-    Last Commited:	27/07/2024 - 11:00 PM
+    Last Commited:	15/12/2024 - 7:24 PM
 ]=]
 
 --!native
@@ -19,44 +19,11 @@ type Token = Types.Token
 
 local Aux = {}
 
-function Aux.ChunkID(source : string, bufflen : number) : string
-	local out
-	local first = string.sub(source, 1, 1)
-	if first == "=" then
-		out = string.sub(source, 2, bufflen)  -- remove first char
-	else  -- out = "source", or "...source"
-		if first == "@" then
-			source = string.sub(source, 2)  -- skip the '@'
-			bufflen = bufflen - #" '...' "
-			local l = #source
-			out = ""
-			if l > bufflen then
-				source = string.sub(source, 1 + l - bufflen)  -- get last part of file name
-				out = out.."..."
-			end
-			out = out..source
-		else  -- out = [string "string"]
-			local len = string.find(source, "[\n\r]")  -- stop at first newline
-			len = len and (len - 1) or #source
-			bufflen = bufflen - #(" [string \"...\"] ")
-			if len > bufflen then len = bufflen end
-			out = "[string \""
-			if len < #source then  -- must truncate?
-				out = out..string.sub(source, 1, len).."..."
-			else
-				out = out..source
-			end
-			out = out.."\"]"
-		end
-	end
-	return out
-end
-
-function Aux.IsAtNewLine(LS : LexerState) : boolean
+function Aux.IsAtNewLine(LS: LexerState) : boolean
 	return LS.Current == "\n" or LS.Current == "\r"
 end
 
-function Aux.IncLineCounter(LS : LexerState)
+function Aux.IncLineCounter(LS: LexerState)
 	local old = LS.Current
 	-- lua_assert(currIsNewline(LS))
 	Aux.NextChar(LS)  -- skip '\n' or '\r'
@@ -69,10 +36,8 @@ function Aux.IncLineCounter(LS : LexerState)
 	end
 end
 
-------------------------------------------------------------------------
--- checks if current character read is found in the set 'set'
-------------------------------------------------------------------------
-function Aux.CheckNext(LS : LexerState, set) : boolean
+-- # Checks if current character read is found in the set 'set'
+function Aux.CheckNext(LS: LexerState, set: string) : boolean
 	if not string.find(set, LS.Current, 1, true) then
 		return false
 	end
@@ -80,55 +45,41 @@ function Aux.CheckNext(LS : LexerState, set) : boolean
 	return true
 end
 
-------------------------------------------------------------------------
--- gets the next character and returns it; previously :nextc()
--- * this is the next() macro in llex.c; see notes at the beginning
-------------------------------------------------------------------------
-function Aux.NextChar(LS : LexerState) : string
+-- # Gets the next character and returns it
+function Aux.NextChar(LS: LexerState) : string
 	local c = LS.ZIO:GetChar()
 	LS.Current = c
 	return c
 end
 
-------------------------------------------------------------------------
--- saves the given character into the token buffer; previously :save()
+-- # Saves the given character into the token buffer
 -- * buffer handling code removed, not used in this implementation
 -- * test for maximum token buffer length not used, makes things faster
-------------------------------------------------------------------------
-
-function Aux.SaveChar(LS : LexerState, c)
+function Aux.SaveChar(LS: LexerState, c: string)
 	local buff = LS.Buffer
-	-- if you want to use this, please uncomment Lexer.MAX_SIZET further up
+	-- // if you want to use this, please uncomment Lexer.MAX_SIZET further up
 	--if #buff > LS.MAX_SIZET then
 	--  LS:LexicalError("lexical element too long")
 	--end
 	LS.Buffer = buff..c
 end
 
-------------------------------------------------------------------------
--- save current character into token buffer, grabs next character
--- * like Aux.nextc, returns the character read for convenience
--- * previously :save_and_next()
-------------------------------------------------------------------------
-function Aux.SaveThenNext(LS : LexerState)
+-- # Save current character into token buffer, grabs next character
+-- * like Aux.NextChar, returns the character read for convenience
+function Aux.SaveThenNext(LS: LexerState) : string
 	Aux.SaveChar(LS, LS.Current)
 	return Aux.NextChar(LS)
 end
 
-------------------------------------------------------------------------
--- LUA_NUMBER
--- * Aux.read_numeral is the main lexer function to read a number
--- * Aux.str2d, Aux.buffreplace, Aux.trydecpoint are support functions
-------------------------------------------------------------------------
-
-------------------------------------------------------------------------
--- string to number converter (was luaO_str2d from lobject.c)
--- * returns the number, nil if fails (originally returns a boolean)
--- * conversion function originally lua_str2number(s,p), a macro which
---   maps to the strtod() function by default (from luaconf.h)
--- * ccuser44 was here to add support for binary integer constants
-------------------------------------------------------------------------
-function Aux.ToNumber(s) : number?
+--[=[
+	LUA_NUMBER
+	The main lexer function to read a number
+	
+	* returns the number, nil if fails (originally returns a boolean)
+	* ccuser44 was here to add support for binary integer constants
+	* Aux.ReplaceBuffer, Aux.TryDecimal are not supported yet
+]=]
+function Aux.ToNumber(s: string) : number?
 	local result = tonumber(s)
 	if result then return result end
 	-- conversion failed
@@ -155,10 +106,8 @@ function Aux.ToNumber(s) : number?
 	return nil
 end
 
-------------------------------------------------------------------------
--- single-character replacement, for locale-aware decimal points
-------------------------------------------------------------------------
-function Aux.ReplaceBuffer(LS : LexerState, from, to)
+-- # Single-character replacement, for locale-aware decimal points
+function Aux.ReplaceBuffer(LS: LexerState, from: string, to: string)
 	local result, buff = "", LS.Buffer
 	for p = 1, #buff do
 		local c = string.sub(buff, p, p)
@@ -168,13 +117,10 @@ function Aux.ReplaceBuffer(LS : LexerState, from, to)
 	LS.Buffer = result
 end
 
-------------------------------------------------------------------------
--- Attempt to convert a number by translating '.' decimal points to
--- the decimal point character used by the current locale. This is not
--- needed in Yueliang as Lua's tonumber() is already locale-aware.
--- Instead, the code is here in case the user implements localeconv().
-------------------------------------------------------------------------
-function Aux.TryDecimal(LS : LexerState, Token : Token)
+-- # Attempt to convert a number by translating '.' decimal points to
+-- the decimal point character used by the current locale.
+-- The code is here in case the developer implements localeconv().
+function Aux.TryDecimal(LS: LexerState, Token: Token)
 	-- format error: try to update decimal point separator
 	local old = LS.DecPoint
 	-- translate the following to Lua if you implement localeconv():
@@ -190,11 +136,9 @@ function Aux.TryDecimal(LS : LexerState, Token : Token)
 	end
 end
 
-------------------------------------------------------------------------
--- main number conversion function
+-- # Main number conversion function
 -- * "^%w$" needed in the scan in order to detect "<eoz>"
-------------------------------------------------------------------------
-function Aux.ReadNumeral(LS : LexerState, Token : Token)
+function Aux.ReadNumeral(LS: LexerState, Token: Token)
 	-- lua_assert(string.find(LS.Current, "%d"))
 	repeat
 		Aux.SaveThenNext(LS)
@@ -213,11 +157,8 @@ function Aux.ReadNumeral(LS : LexerState, Token : Token)
 	end
 end
 
-------------------------------------------------------------------------
--- reads a long string or comment
--- * if the language supports it
-------------------------------------------------------------------------
-function Aux.ReadLongText(LS : LexerState, ending : string)
+-- # Reads a long string or comment (if the language supports it)
+function Aux.ReadLongText(LS: LexerState, ending: string)
 	local endrest = (ending):split('')
 	local endsign = table.remove(endrest, 1)
 	LS.Buffer = ""
@@ -242,13 +183,10 @@ function Aux.ReadLongText(LS : LexerState, ending : string)
 	Aux.NextChar(LS)
 end
 
-------------------------------------------------------------------------
--- reads a string
+-- # Reads a string
 -- * ccuser44 was here to add support for UTF8 string literals,
 -- hex numerical string literals and the \z string literal
-------------------------------------------------------------------------
-
-function Aux.ReadString(LS : LexerState, del, Token : Token)
+function Aux.ReadString(LS: LexerState, del: string, Token: Token)
 	Aux.SaveThenNext(LS)
 	while LS.Current ~= del do
 		local c = LS.Current
@@ -279,12 +217,11 @@ function Aux.ReadString(LS : LexerState, del, Token : Token)
 					while true do
 						local __c = Aux.NextChar(LS)
 
-						if __c == "}" then
-							break
+						if __c == "}" then break
 						elseif string.match(__c, "%x") then
-							unicodeCharacter ..= __c
+							unicodeCharacter ..= __c :: string
 						else
-							LS:LexicalError(string.format("Invalid unicode character sequence. Expected alphanumeric character, got %s. Did you forget to close the code sequence with a curly bracket?", __c), "<string>")
+							LS:LexicalError(string.format("Invalid unicode character sequence. Expected alphanumeric character, got %s. Did you forget to close the code sequence with a curly bracket?", __c :: string), "<string>")
 						end
 					end
 
@@ -309,16 +246,16 @@ function Aux.ReadString(LS : LexerState, del, Token : Token)
 				elseif not string.find(_c, "%d") then
 					Aux.SaveThenNext(LS)  -- handles \\, \", \', and \?
 				else  -- \xxx
-					local __c, _i = 0, 0
+					local _ci, _i = 0, 0
 					repeat
-						__c = 10 * __c + string.byte(LS.Current)
+						_ci = 10 * (_ci :: number) + string.byte(LS.Current)
 						Aux.NextChar(LS)
 						_i = _i + 1
 					until _i >= 3 or not string.find(LS.Current, "%d")
-					if __c > 255 then  -- UCHAR_MAX
+					if _ci > 255 then  -- UCHAR_MAX
 						LS:LexicalError("escape sequence too large", "<string>")
 					end
-					Aux.SaveChar(LS, string.char(__c))
+					Aux.SaveChar(LS, string.char(_ci))
 				end
 			end
 		else

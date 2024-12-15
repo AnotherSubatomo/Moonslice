@@ -100,5 +100,6 @@ while Lexer.Now.Type ~= "<eoz>" do
 	--	 on average to get, blazingly fast isnt it?
 	local Tick = os.clock()
 	Lexer:Next()
-	print(Lexer.Now, 'Tock!: '..os.clock()-Tick)
+	warn(`Tock!: {(os.clock() - Tick) * 1000} ms`)
+	print(Lexer.Now)
 end
