@@ -1,5 +1,14 @@
+<div align="center">
+
 # Moonslice
-A lexical analyzer generator in Luau.
+A simple, robust, and blazingly fast lexical analyzer generator in Luau.
+
+![Last Commit](https://img.shields.io/github/last-commit/AnotherSubatomo/Moonslice/main) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+</div>
+
+---
+
 Similar to the actual `Lex` program, this module generates a lexical analyzer **but** given a what is called a `Lexicon`.
 
 A `Lexicon` of a language is structured like this:
@@ -24,7 +33,7 @@ type Lexicon = {
 <br>
 
 Requiring `Moonslice` will return a function that takes in this `Lexicon` and outputs a lexer object with the following methods:
-- `:Set()` — Initializes the lexer, **must be ran immidiately after creating a lexer**.
+- `:Set()` — Sets the context (the text file) the lexer will work on.
 - `:Next()` — Gets the next `Token`.
 - `:Lookahead()` — Peeks the next `Token`.
 - `:LexError()` — Produces a lexical error given a `Message` and `Token`.
@@ -46,6 +55,11 @@ type Token = {
   Type :  string                -- # Token type
 }
 ```
+
+---
+### Performance
+Based on the results of the tests ran in [tests](https://github.com/AnotherSubatomo/Moonslice/tree/main/test), a token takes about **1/175 to 1 of <u>a millisecond</u>** to parse.
+
 ---
 ### Constraints
 Specific things will always have the same token outputed by lexer design, so please watch out for the following constraints:
@@ -68,7 +82,7 @@ Installation can be easily done by either downloading the latest release and imp
 If you're using Wally, simply add `Moonslice = "anothersubatomo/moonslice@0.3.2"` to your dependencies at the `wally.toml` file and run `wally install`.
 
 ---
-### Why
+### Rationale
 This module was actually a side-product another project of mine — *Eclipse* (formerly LCC and LuASM) — which you can think of as the "lesser-ambitious" version of LLVM. It has a set of compilers, a compiler infrastructure, and toolchains, all written in Luau. Why? Because (1) It allows Roblox experiences that are focused on teaching people how to program in different languages can actually sandbox the code. (2) I am a compiler nerd, and (3) why not?
 
 If you have an eye for possible optimizations, bug fixes, or improvements, please feel free to contribute as this project is *open-source*. 😊
