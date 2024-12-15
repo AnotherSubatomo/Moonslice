@@ -1,7 +1,7 @@
 [package]
 name = "anothersubatomo/moonslice"
-version = "0.3.2"
-description = "A lexical analyzer generator in Luau"
+version = "0.3.3"
+description = "A simple, robust, and blazingly fast lexical analyzer generator in Luau"
 license = "MIT"
 authors = ["AnotherSubatomo"]
 

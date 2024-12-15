@@ -79,7 +79,7 @@ _* Literal numbers are automatically converted into numbers (Hence why `Token.Le
 
 Installation can be easily done by either downloading the latest release and importing it directly into studio or by using [Wally]().
 
-If you're using Wally, simply add `Moonslice = "anothersubatomo/moonslice@0.3.2"` to your dependencies at the `wally.toml` file and run `wally install`.
+If you're using Wally, simply add `Moonslice = "anothersubatomo/moonslice@0.3.3"` to your dependencies at the `wally.toml` file and run `wally install`.
 
 ---
 ### Rationale
