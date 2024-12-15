@@ -3,7 +3,7 @@
 # Moonslice
 A simple, robust, and blazingly fast lexical analyzer generator in Luau.
 
-![Last Commit](https://img.shields.io/github/last-commit/AnotherSubatomo/Moonslice/main) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Last Commit](https://img.shields.io/github/last-commit/AnotherSubatomo/Moonslice/main)](https://github.com/AnotherSubatomo/Moonslice/commits/main/) [![Release version](https://img.shields.io/github/v/release/AnotherSubatomo/Moonslice?color=green)](https://github.com/AnotherSubatomo/Moonslice/releases/tag/v0.3.3) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 </div>
 
